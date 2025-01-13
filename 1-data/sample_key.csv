@@ -1,0 +1,23 @@
+﻿sample_namre,horizon,water,number_floods
+FWA0.5,A,FW,1
+FWA1,A,FW,2
+FWA2,A,FW,4
+FWA3,A,FW,6
+FWB0.5,B,FW,1
+FWB1,B,FW,2
+FWB2,B,FW,4
+FWB3,B,FW,6
+RRA0.5,A,SW,1
+RRA1,A,SW,2
+RRA2,A,SW,4
+RRA3,A,SW,6
+RRB0.5,B,SW,1
+RRB1,B,SW,2
+RRB2,B,SW,4
+RRB3,B,SW,6
+TA,A,control,0
+TA2,A,control,0
+TA3,A,control,0
+TB ,B,control,0
+TB2,B,control,0
+TB3,B,control,0

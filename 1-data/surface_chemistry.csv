@@ -1,4 +1,4 @@
-﻿Sample_Name,Horizon,water,#floods,exch_Na_%,CEC_meq_100g-1,base_ sat_%,SAR_meq_L-1
+﻿sample_name,horizon,water,number_floods,exch_Na_percent,CEC_meq_100g-1,base_ saturation_percent,SAR_meq_L-1
 FWA0.5,A,FW,1,1.567321679,8.060097714,46.29091268,0.210743181
 FWA1,A,FW,2,1.927181796,8.210510797,50.76118405,0.252806435
 FWA2,A,FW,4,1.247853077,8.779750951,31.45837027,0.228576829

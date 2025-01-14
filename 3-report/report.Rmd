@@ -1,0 +1,231 @@
+---
+title: "Flooding and Soil Structure"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE,
+                      error = FALSE
+                      )
+```
+
+
+```{r packages}
+library(tidyverse)
+
+theme_kp <- function() {  # this for all the elements common across plots
+  theme_bw() %+replace%
+    theme(legend.position = "top",
+          legend.key=element_blank(),
+          legend.title = element_text(size = 14, hjust = 0),
+          legend.text = element_text(size = 12),
+          legend.key.size = unit(1.5, 'lines'),
+          legend.background = element_rect(colour = NA),
+          panel.border = element_rect(color="black",linewidth=1, fill = NA),
+          
+          plot.title = element_text(hjust = 0, size = 14),
+          axis.text = element_text(size = 14, color = "black"),
+          axis.title = element_text(size = 14, face = "bold", color = "black"),
+          
+          # formatting for facets
+          panel.background = element_blank(),
+          strip.background = element_rect(colour="white", fill="white"), #facet formatting
+          panel.spacing.x = unit(1, "lines"), #facet spacing for x axis
+          panel.spacing.y = unit(1.5, "lines"), #facet spacing for x axis
+          strip.text.x = element_text(size=14, face="bold"), #facet labels
+          strip.text.y = element_text(size=14, face="bold", angle = 270) #facet labels
+    )
+}
+theme_set(theme_kp())
+
+
+pal_water = c("royalblue", "darkorange", "plum2")
+
+order_water = function(dat){
+  dat %>% 
+    mutate(water = case_match(water, "FW" ~ "fresh water", "SW" ~ "salt water", .default = water),
+           water = factor(water, levels = c("fresh water", "salt water", "control")))
+}
+```
+
+```{r data_imports}
+
+sample_key = read.csv("1-data/sample_key.csv")
+
+```
+
+--- 
+
+## Specific Surface Area
+
+```{r ssa_processing}
+
+ssa = read.csv("1-data/surface_area.csv")
+
+ssa_processed = 
+  ssa %>% janitor::clean_names() %>% 
+  filter(water != "OW") %>% 
+  order_water()
+
+```
+
+```{r gg_ssa, fig.height=5.5, fig.width=10}
+
+ssa_processed %>% 
+  mutate(horizon = paste(horizon, "horizon")) %>%
+  ggplot(aes(y = ssa_m2_g, x = depth_increment, color = water))+
+  geom_point(size = 1,
+             position = position_dodge(width = 0.5))+
+  stat_summary(fun.y = mean, geom = "point", size = 4,
+               position = position_dodge(width = 0.5)) + 
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3,
+               position = position_dodge(width = 0.5))+
+  coord_flip()+
+  scale_x_reverse()+
+  scale_color_manual(values = pal_water)+
+  facet_wrap(~horizon)+
+  expand_limits(y = 0)+
+  labs(color = "",
+       linetype = "",
+       y = expression(bold("Specific surface area, m" ^2 * "/g")),
+       x = "Depth, cm")+
+  NULL
+
+ssa_processed %>% 
+  mutate(horizon = paste(horizon, "horizon")) %>%
+  ggplot(aes(y = ssa_m2_g, x = depth_increment, color = water))+
+  geom_point(size = 1,
+             position = position_dodge(width = 0.5))+
+  geom_boxplot(aes(group = interaction(depth_increment, water)),
+               fill = NA, width = 0.5,
+                position = position_dodge(width = 0.5))+
+  coord_flip()+
+  scale_x_reverse()+
+  scale_color_manual(values = pal_water)+
+  facet_wrap(~horizon)+
+  expand_limits(y = 0)+
+  labs(color = "",
+       linetype = "",
+       y = expression(bold("Specific surface area, m" ^2 * "/g")),
+       x = "Depth, cm")+
+  NULL
+
+```
+
+
+---
+
+## Dissolved oxygen
+
+```{r do_processing}
+
+do = read.csv("1-data/dissolved_oxygen.csv", na = "")
+do_processed = 
+  do %>% 
+  separate(sample, into = c("sample_name", "horizon", "water"), sep = "_", remove = F) %>% 
+  mutate(flood = parse_number(sample_name),
+         flood = paste(flood, "floods"),
+         flood = case_match(flood, "1 floods" ~ "1 flood", .default = flood)) %>% 
+  janitor::remove_empty() %>% 
+  filter(sample != "4fld_A_SW") %>% 
+  order_water()
+
+do_all = 
+  do_processed %>% 
+  #filter(treatment == "FW") %>% 
+  ggplot(aes(x = days_elapsed, y = DO_mgL, color = water))+
+  geom_path()+
+  geom_point()+
+  scale_color_manual(values = pal_water)+
+  facet_wrap(~water + horizon + sample, ncol = 4)
+
+```
+
+```{r gg_do, fig.height=5.5, fig.width=10}
+
+do_processed %>% 
+  mutate(horizon = paste(horizon, "horizon")) %>% 
+  filter(sample_name == "2fld") %>% 
+  ggplot(aes(x = days_elapsed, y = DO_mgL, color = water, 
+             #linetype = water
+             ))+
+  geom_path(size = 1)+
+#  geom_point()+
+  scale_color_manual(values = pal_water)+   
+  scale_linetype_manual(values = c("solid", "dotdash"))+   
+  facet_wrap(~horizon)+
+  labs(color = "",
+       linetype = "",
+       x = "Elapsed days",
+       y = "Dissolved oxygen, mg/L")+
+  NULL
+
+```
+
+```{r gg_do_all, fig.height=14, fig.width=8}
+
+do_processed %>% 
+  mutate(horizon = paste(horizon, "horizon")) %>%
+  ggplot(aes(x = days_elapsed, y = DO_mgL, color = water, 
+             #linetype = water
+  ))+
+  geom_path(size = 1)+
+  #  geom_point()+
+  scale_color_manual(values = pal_water)+   
+  scale_linetype_manual(values = c("solid", "dotdash"))+   
+  facet_grid(flood ~ horizon)+
+  labs(color = "",
+       linetype = "",
+       x = "Elapsed days",
+       y = "Dissolved oxygen, mg/L")+
+  NULL
+```
+
+---
+
+## Surface chemistry
+
+```{r chem_processing}
+
+chem = read.csv("1-data/surface_chemistry.csv", na = "")
+chem_processed = 
+  chem %>% 
+  janitor::clean_names() %>% 
+  order_water()
+
+```
+
+```{r gg_chem, fig.height=5.5, fig.width=10}
+
+chem_processed %>% 
+  filter(water != "control") %>% 
+  mutate(horizon = paste(horizon, "horizon")) %>%
+  ggplot(aes(x = number_floods, y = exch_na_percent, color = water))+
+  geom_path(size = 1)+
+  geom_point(size = 3)+
+  scale_color_manual(values = pal_water)+
+  facet_wrap(~horizon)+
+  labs(color = "",
+       linetype = "",
+       x = "Number of floods",
+       y = "Exchangeable Na, %")+
+  NULL
+
+```
+
+---
+
+## Session Info 
+
+<details>
+  <summary> Session Info </summary>
+
+Date run: `r Sys.Date()`
+
+```{r}
+sessionInfo()
+```
+
+</details>

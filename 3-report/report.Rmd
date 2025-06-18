@@ -215,6 +215,48 @@ chem_processed %>%
 
 ```
 
+## Respiration
+
+```{r resp_processing}
+
+respiration = read.csv("1-data/respiration_CO2_PPM_662025.csv", na = "")
+
+respiration_processed = 
+  respiration %>% 
+  pivot_longer(cols = -c(day)) %>% 
+  left_join(sample_key, by = c("name" = "sample_name2")) %>% 
+  filter(!grepl("blank", name)) %>% 
+  order_water()
+
+```
+
+```{r gg_resp, fig.height=5.5, fig.width=10}
+
+respiration_processed %>% 
+  ggplot(aes(x = day, y = value, color = as.character(number_floods)))+
+  geom_line()+
+  geom_point()+
+  scale_x_continuous(breaks = c(0, 2, 4, 6, 8, 10, 12))+
+  facet_wrap(~water + horizon)
+
+
+respiration_processed %>% 
+  ggplot(aes(x = day, y = value, color = water, group = name))+
+  geom_path(size = 1)+
+  geom_point(size = 3)+
+  scale_color_manual(values = pal_water)+
+  scale_x_continuous(breaks = c(0, 2, 4, 6, 8, 10, 12))+
+  facet_wrap(~horizon)+
+   labs(color = "",
+       linetype = "",
+       x = "Elapsed days",
+       y = "CO2, ppm")+
+  NULL
+
+```
+
+
+
 ---
 
 ## Session Info 

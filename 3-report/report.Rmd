@@ -129,7 +129,8 @@ do_processed =
          flood = paste(flood, "floods"),
          flood = case_match(flood, "1 floods" ~ "1 flood", .default = flood)) %>% 
   janitor::remove_empty() %>% 
-  filter(sample != "4fld_A_SW") %>% 
+  #filter(sample != "4fld_A_SW") %>% 
+  filter(!is.na(sample)) %>% 
   order_water()
 
 do_all = 

@@ -34,7 +34,7 @@ Flooding and Soil Structure
 Session Info
 </summary>
 
-Date run: 2025-06-18
+Date run: 2025-07-24
 
     ## R version 4.5.0 (2025-04-11)
     ## Platform: aarch64-apple-darwin20
@@ -55,7 +55,7 @@ Date run: 2025-06-18
     ## 
     ## other attached packages:
     ##  [1] lubridate_1.9.4 forcats_1.0.0   stringr_1.5.1   dplyr_1.1.4    
-    ##  [5] purrr_1.0.4     readr_2.1.5     tidyr_1.3.1     tibble_3.2.1   
+    ##  [5] purrr_1.0.4     readr_2.1.5     tidyr_1.3.1     tibble_3.3.0   
     ##  [9] ggplot2_3.5.2   tidyverse_2.0.0
     ## 
     ## loaded via a namespace (and not attached):

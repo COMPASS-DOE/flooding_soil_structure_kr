@@ -144,15 +144,44 @@ do_all =
 
 ```
 
+```{r flood_times}
+
+# df with timepoints for flood periods
+# will be added to the plots
+
+flood_time = 
+  tribble(
+    ~flood,	      ~start,	  ~end,
+    "1 flood",    0.0076,	  0.917,
+    "2 floods", 	0.009,  	0.98,
+    "2 floods",	  2.07,	    3.05,
+    "4 floods", 	0.0009,	  0.903,
+    "4 floods",	  2.0009,	  2.931,
+    "4 floods", 	3.987,	  4.987,
+    "4 floods",	  5.966,	  7.001,
+    "6 floods", 	0.0067,	  0.9512,
+    "6 floods",	  1.819,	  3.284,
+    "6 floods", 	4.187,	  6.576,
+    "6 floods",	  7.305,	  8.319,
+    "6 floods", 	9.347,	  10.187,
+    "6 floods",	  11.451,	  12.333
+  )
+
+```
+
 ```{r gg_do, fig.height=5.5, fig.width=10}
 
 do_processed %>% 
   mutate(horizon = paste(horizon, "horizon")) %>% 
   filter(sample_name == "2fld") %>% 
-  ggplot(aes(x = days_elapsed, y = DO_mgL, color = water, 
+  ggplot()+
+      geom_rect(data = flood_time %>% filter(flood == "2 floods"), 
+            aes(xmin = start, xmax = end, ymin = -Inf, ymax = Inf), 
+            fill = "dodgerblue3", alpha = 0.08)+
+  geom_path(aes(x = days_elapsed, y = DO_mgL, color = water, 
              #linetype = water
-             ))+
-  geom_path(size = 1)+
+             ),
+            size = 1)+
 #  geom_point()+
   scale_color_manual(values = pal_water)+   
   scale_linetype_manual(values = c("solid", "dotdash"))+   
@@ -161,6 +190,7 @@ do_processed %>%
        linetype = "",
        x = "Elapsed days",
        y = "Dissolved oxygen, mg/L")+
+
   NULL
 
 ```
@@ -169,10 +199,14 @@ do_processed %>%
 
 do_processed %>% 
   mutate(horizon = paste(horizon, "horizon")) %>%
-  ggplot(aes(x = days_elapsed, y = DO_mgL, color = water, 
+  ggplot()+
+  geom_rect(data = flood_time, 
+            aes(xmin = start, xmax = end, ymin = -Inf, ymax = Inf), 
+            fill = "dodgerblue3", alpha = 0.08)+
+  geom_path(aes(x = days_elapsed, y = DO_mgL, color = water, 
              #linetype = water
-  ))+
-  geom_path(size = 1)+
+  ),
+            size = 1)+
   #  geom_point()+
   scale_color_manual(values = pal_water)+   
   scale_linetype_manual(values = c("solid", "dotdash"))+   
@@ -182,6 +216,7 @@ do_processed %>%
        x = "Elapsed days",
        y = "Dissolved oxygen, mg/L")+
   NULL
+
 ```
 
 ---

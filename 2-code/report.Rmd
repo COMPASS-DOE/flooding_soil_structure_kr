@@ -291,6 +291,63 @@ respiration_processed %>%
 
 ```
 
+## Water retention curves
+
+```{r wrc}
+wrc = read.csv("1-data/WaterRetention_10182025.csv")
+
+wrc_processed = 
+  wrc %>% 
+  mutate_all(as.numeric) %>% 
+  rownames_to_column("row") %>% 
+  pivot_longer(cols = -row) %>% 
+  drop_na() %>% 
+  separate(name, sep = "_", into = c("horizon_sample", "flood", "data_type", "variable")) %>% 
+  mutate(horizon = str_extract(horizon_sample, "A|B"),
+         horizon = paste(horizon, "horizon"),
+         treatment = str_remove(horizon_sample, "A|B"),
+         treatment = toupper(treatment),
+         treatment = case_match(treatment, "CONT" ~ "Control (0 flood)", 
+                                .default = treatment),
+         rep = flood,
+         flood = case_when(treatment == "Control (0 flood)" ~ "0", .default = flood)
+         ) %>% 
+  dplyr::select(-horizon_sample) %>% 
+  pivot_wider(names_from = "variable") %>% 
+    filter(pf > 0) %>% 
+  mutate(kPa = round((10^pf)/10,2)) %>% 
+rename(pF = pf,
+         VWC_percent = `VWC.`)
+
+```
+
+```{r gg_wrc, fig.height=8, fig.width=9.5}
+library(ggh4x)
+
+ggplot(data = wrc_processed,
+       aes(x = kPa, y = VWC_percent, color = flood, group = rep))+
+  geom_line(data = wrc_processed %>% filter(data_type == "Fit"), linewidth = 1)+
+  # geom_point(data = wrc_processed %>% filter(data_type == "Data"), shape = 21)+
+  facet_nested_wrap(~ horizon + treatment, nest_line = element_line(color = "grey70"))+
+  scale_x_log10(labels = scales::comma)+
+  scale_color_manual(values = c("black", "#734ec7", "#a22222", "#eb7100", "#ffd04d"))+
+  labs(y = "water content (% v/v)", 
+       color = "number of floods")
+
+
+wrc_processed %>% 
+  ggplot(aes(x = VWC_percent, y = K,
+             color = flood, group = rep))+
+  geom_line(linewidth = 1)+
+  facet_nested_wrap(~ horizon + treatment, nest_line = element_line(color = "grey70"))+
+  scale_color_manual(values = c("black", "#734ec7", "#a22222", "#eb7100", "#ffd04d"))+
+  labs(x = "water content (% v/v)", 
+       y = "unsaturated hydraulic conductivity, K 
+       (cm/d)",
+       color = "number of floods")
+
+# 950 x 800
+```
 
 
 ---
